@@ -171,7 +171,7 @@ class _ScheduleFormScreenState extends ConsumerState<ScheduleFormScreen> {
         actions: [
           TextButton(
             onPressed: _saveSchedule,
-            child: const Text('Save'),
+            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -180,124 +180,141 @@ class _ScheduleFormScreenState extends ConsumerState<ScheduleFormScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Title
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                hintText: 'Enter schedule title',
-                prefixIcon: Icon(Icons.title),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a title';
-                }
-                return null;
-              },
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // All Day Toggle
-            SwitchListTile(
-              title: const Text('All Day'),
-              subtitle: const Text('Schedule lasts all day'),
-              value: _isAllDay,
-              onChanged: (value) {
-                setState(() {
-                  _isAllDay = value;
-                });
-              },
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Date Selection
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: const Text('Date'),
-                subtitle: Text(DateFormat('EEEE, MMMM d, y', 'ko_KR').format(_startTime)),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _selectDate,
-              ),
-            ),
-            
-            const SizedBox(height: 8),
-            
-            // Time Selection (if not all day)
-            if (!_isAllDay) ...[
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.access_time),
-                  title: const Text('Start Time'),
-                  subtitle: Text(DateFormat('HH:mm').format(_startTime)),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _selectStartTime,
+            // Basic Info Section
+            _buildSection(
+              context,
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    hintText: 'What are you planning?',
+                    prefixIcon: Icon(Icons.title),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a title';
+                    }
+                    return null;
+                  },
+                  textCapitalization: TextCapitalization.sentences,
                 ),
-              ),
-              
-              const SizedBox(height: 8),
-              
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.access_time_filled),
-                  title: const Text('End Time'),
-                  subtitle: Text(DateFormat('HH:mm').format(_endTime)),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _selectEndTime,
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                TextFormField(
+                  controller: _locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
+                    hintText: 'Add location',
+                    prefixIcon: Icon(Icons.location_on_outlined),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  textCapitalization: TextCapitalization.words,
                 ),
-              ),
-            ],
-            
-            const SizedBox(height: 24),
-            
-            // Location
-            TextFormField(
-              controller: _locationController,
-              decoration: const InputDecoration(
-                labelText: 'Location',
-                hintText: 'Enter location',
-                prefixIcon: Icon(Icons.location_on),
-              ),
-              textCapitalization: TextCapitalization.words,
+              ],
             ),
             
             const SizedBox(height: 24),
             
-            // Details/Notes
-            TextFormField(
-              controller: _detailsController,
-              decoration: const InputDecoration(
-                labelText: 'Details',
-                hintText: 'Add notes or details',
-                prefixIcon: Icon(Icons.note),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 5,
-              textCapitalization: TextCapitalization.sentences,
+            // Time Section
+            _buildSection(
+              context,
+              children: [
+                SwitchListTile(
+                  title: const Text('All Day'),
+                  value: _isAllDay,
+                  onChanged: (value) {
+                    setState(() {
+                      _isAllDay = value;
+                    });
+                  },
+                  secondary: const Icon(Icons.access_time),
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                ListTile(
+                  leading: const Icon(Icons.calendar_today_outlined),
+                  title: Text(DateFormat('EEEE, MMMM d, y', 'ko_KR').format(_startTime)),
+                  trailing: const Icon(Icons.chevron_right, size: 20),
+                  onTap: _selectDate,
+                ),
+                if (!_isAllDay) ...[
+                  const Divider(height: 1, indent: 16, endIndent: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          title: const Text('Starts'),
+                          trailing: Text(
+                            DateFormat('HH:mm').format(_startTime),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          onTap: _selectStartTime,
+                        ),
+                      ),
+                      Container(
+                        height: 24,
+                        width: 1,
+                        color: Theme.of(context).dividerColor,
+                      ),
+                      Expanded(
+                        child: ListTile(
+                          title: const Text('Ends'),
+                          trailing: Text(
+                            DateFormat('HH:mm').format(_endTime),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          onTap: _selectEndTime,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Details Section
+            _buildSection(
+              context,
+              children: [
+                TextFormField(
+                  controller: _detailsController,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes',
+                    hintText: 'Add details, notes, or links',
+                    prefixIcon: Icon(Icons.notes),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 6,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+              ],
             ),
             
             const SizedBox(height: 32),
             
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveSchedule,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Save Schedule'),
-              ),
-            ),
-            
-            if (widget.schedule != null) ...[
-              const SizedBox(height: 16),
+            if (widget.schedule != null)
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
+                child: TextButton.icon(
                   onPressed: () async {
                     final confirm = await showDialog<bool>(
                       context: context,
@@ -327,16 +344,31 @@ class _ScheduleFormScreenState extends ConsumerState<ScheduleFormScreen> {
                       }
                     }
                   },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Delete Schedule'),
+                  style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Delete Schedule'),
                 ),
               ),
-            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSection(BuildContext context, {required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withOpacity(0.1),
+        ),
+      ),
+      child: Column(
+        children: children,
       ),
     );
   }

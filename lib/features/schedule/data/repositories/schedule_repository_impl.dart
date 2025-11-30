@@ -1,6 +1,8 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/error/failures.dart';
+import '../../../../core/sync/sync_service.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/schedule_entity.dart';
 import '../../domain/repositories/schedule_repository.dart';
 import '../datasources/schedule_local_data_source.dart';
@@ -14,20 +16,28 @@ IScheduleRepository scheduleRepository(ScheduleRepositoryRef ref) {
   return ScheduleRepositoryImpl(
     ref.watch(scheduleLocalDataSourceProvider),
     ref.watch(scheduleRemoteDataSourceProvider),
+    ref.watch(syncServiceProvider),
+    ref,
   );
 }
 
 class ScheduleRepositoryImpl implements IScheduleRepository {
   final ScheduleLocalDataSource _localDataSource;
   final ScheduleRemoteDataSource _remoteDataSource;
+  final SyncService _syncService;
+  final ScheduleRepositoryRef _ref;
 
-  ScheduleRepositoryImpl(this._localDataSource, this._remoteDataSource);
+  ScheduleRepositoryImpl(
+    this._localDataSource,
+    this._remoteDataSource,
+    this._syncService,
+    this._ref,
+  );
 
-  // Helper to check if user is authenticated (has access token)
+  // Check if user is authenticated
   bool get _isOnline {
-    // TODO: Check auth state properly via AuthProvider
-    // For now, always use local-first approach
-    return false;
+    final authState = _ref.read(authProvider);
+    return authState.value != null;
   }
 
   @override
@@ -149,7 +159,28 @@ class ScheduleRepositoryImpl implements IScheduleRepository {
 
   @override
   Future<Either<Failure, void>> syncSchedules() async {
-    // TODO: Implement in later phase
-    return left(const Failure('Sync not implemented yet'));
+    try {
+      if (!_isOnline) {
+        return left(const Failure('Cannot sync while offline'));
+      }
+      
+      await _syncService.syncAll();
+      return right(null);
+    } catch (e) {
+      return left(ServerFailure(e.toString()));
+    }
+  }
+}
+
+// Extension to add helper methods
+extension ScheduleEntityExtensions on ScheduleEntity {
+  Map<String, dynamic> toCreateRequest() {
+    return {
+      'title': title,
+      'details': details,
+      'location': location,
+      'startTime': startTime.toIso8601String(),
+      'endTime': endTime.toIso8601String(),
+    };
   }
 }

@@ -23,16 +23,30 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.person_add_outlined,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.notifications_none_outlined,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Text(
                     'No pending requests',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'New friend requests will appear here',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         ),
                   ),
                 ],
@@ -45,6 +59,13 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
                 final request = pendingRequests[index];
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
@@ -53,28 +74,42 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
                         Row(
                           children: [
                             CircleAvatar(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              radius: 24,
+                              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
                               child: Text(
                                 request.name.isNotEmpty ? request.name[0].toUpperCase() : 'U',
-                                style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     request.name,
-                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
+                                  const SizedBox(height: 2),
                                   Text(
                                     request.email,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                        ),
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Sent a request',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -85,7 +120,7 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: OutlinedButton(
+                              child: FilledButton(
                                 onPressed: () {
                                   // TODO: Accept friend request
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -95,8 +130,12 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
                                     ),
                                   );
                                 },
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.green,
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                                 child: const Text('Accept'),
                               ),
@@ -113,7 +152,11 @@ class _FriendRequestScreenState extends ConsumerState<FriendRequestScreen> {
                                   );
                                 },
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
+                                  foregroundColor: Theme.of(context).colorScheme.error,
+                                  side: BorderSide(color: Theme.of(context).colorScheme.error),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                                 child: const Text('Reject'),
                               ),

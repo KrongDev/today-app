@@ -27,5 +27,11 @@ class AuthRemoteDataSource {
     return AuthResponse.fromJson(response.data);
   }
 
-  // TODO: Add refresh token method here if not handled solely by interceptor
+  Future<AuthResponse> refreshToken(String refreshToken) async {
+    final response = await _dio.post(
+      '/auth/refresh',
+      data: {'refreshToken': refreshToken},
+    );
+    return AuthResponse.fromJson(response.data);
+  }
 }

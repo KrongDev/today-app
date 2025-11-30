@@ -21,7 +21,7 @@ Dio dio(DioRef ref) {
 
   // Add Interceptors
   final storage = ref.watch(secureStorageProvider);
-  dio.interceptors.add(AuthInterceptor(storage));
+  dio.interceptors.add(AuthInterceptor(storage, dio));
   
   return dio;
 }

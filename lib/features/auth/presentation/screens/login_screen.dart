@@ -1,30 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../data/services/oauth2_service.dart';
 import '../providers/auth_provider.dart';
 
-class LoginScreen extends ConsumerWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authProvider);
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
 
-    // Listen for state changes to navigate
-    ref.listen(authProvider, (previous, next) {
-      if (next.value != null) {
-        context.go('/'); // Go to Home on success
-      }
-      if (next.hasError) {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final OAuth2Service _oauth2Service = OAuth2Service();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenForOAuth2Callback();
+  }
+
+  void _listenForOAuth2Callback() {
+    _oauth2Service.listenForCallback().listen(
+      (tokens) {
+        // Store tokens and navigate to home
+        ref.read(authProvider.notifier).setTokens(
+          tokens.accessToken,
+          tokens.refreshToken,
+        );
+        if (mounted) {
+          context.go('/');
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Login failed: $error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        setState(() => _isLoading = false);
+      },
+    );
+  }
+
+  Future<void> _handleOAuth2Login(String provider) async {
+    setState(() => _isLoading = true);
+    try {
+      await _oauth2Service.launchOAuth2Login(provider);
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.error.toString()),
+            content: Text('Failed to launch login: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-    });
+      setState(() => _isLoading = false);
+    }
+  }
 
+  @override
+  void dispose() {
+    _oauth2Service.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -65,16 +112,14 @@ class LoginScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 48),
                 
-                if (authState.isLoading)
+                if (_isLoading)
                   const CircularProgressIndicator()
                 else ...[
                   // Google Sign In Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        ref.read(authProvider.notifier).login('google', 'mock_token');
-                      },
+                      onPressed: () => _handleOAuth2Login('google'),
                       icon: const Icon(Icons.g_mobiledata, size: 28),
                       label: const Text('Sign in with Google'),
                       style: ElevatedButton.styleFrom(
@@ -84,13 +129,11 @@ class LoginScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   
-                  // Kakao Sign In Button (if needed)
+                  // Kakao Sign In Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        ref.read(authProvider.notifier).login('kakao', 'mock_token');
-                      },
+                      onPressed: () => _handleOAuth2Login('kakao'),
                       icon: const Text('K', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       label: const Text('Sign in with Kakao'),
                       style: ElevatedButton.styleFrom(

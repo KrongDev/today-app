@@ -65,6 +65,10 @@ dependencies:
   # Assets
   flutter_svg: ^2.0.0
   
+  # OAuth2 / Deep Linking
+  url_launcher: ^6.2.0
+  uni_links: ^0.5.1
+  
   # App Icon & Splash
   flutter_launcher_icons: ^0.13.0
   flutter_native_splash: ^2.3.0

@@ -18,9 +18,6 @@ IAuthRepository authRepository(AuthRepositoryRef ref) {
   );
 }
 
-// We need a provider for the service wrapper, let's create it quickly in secure_storage.dart or here.
-// For now, let's assume we update secure_storage.dart to provide the service.
-
 class AuthRepositoryImpl implements IAuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
   final SecureStorageService _storage;
@@ -34,13 +31,39 @@ class AuthRepositoryImpl implements IAuthRepository {
       
       await _storage.write(key: StorageConstants.accessToken, value: response.accessToken);
       await _storage.write(key: StorageConstants.refreshToken, value: response.refreshToken);
-      // Save User ID or Profile locally if needed
       
       return right(response.user);
     } on DioException catch (e) {
       return left(ServerFailure(e.message ?? 'Login failed'));
     } catch (e) {
       return left(const Failure('Unexpected error'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, User>> saveTokens(String accessToken, String refreshToken) async {
+    try {
+      // Store tokens
+      await _storage.write(key: StorageConstants.accessToken, value: accessToken);
+      await _storage.write(key: StorageConstants.refreshToken, value: refreshToken);
+      
+      // Fetch user profile from server using the access token
+      // TODO: Implement getUserProfile API call
+      // For now, return a mock user
+      final user = User(
+        id: 'temp-id',
+        nickname: 'User',
+        email: 'user@example.com',
+        notificationSetting: true,
+        isSubscriber: false,
+        isDeactivated: false,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      return right(user);
+    } catch (e) {
+      return left(CacheFailure('Failed to save tokens: $e'));
     }
   }
 
@@ -56,7 +79,29 @@ class AuthRepositoryImpl implements IAuthRepository {
 
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
-    // TODO: Implement get current user from local storage or API
-    return left(const Failure('Not implemented'));
+    try {
+      final accessToken = await _storage.read(key: StorageConstants.accessToken);
+      
+      if (accessToken == null) {
+        return left(const CacheFailure('No access token found'));
+      }
+      
+      // TODO: Implement getUserProfile API call
+      // For now, return a mock user if token exists
+      final user = User(
+        id: 'temp-id',
+        nickname: 'User',
+        email: 'user@example.com',
+        notificationSetting: true,
+        isSubscriber: false,
+        isDeactivated: false,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      
+      return right(user);
+    } catch (e) {
+      return left(CacheFailure('Failed to get current user: $e'));
+    }
   }
 }

@@ -122,6 +122,17 @@ class ScheduleLocalDataSource {
     return models.map((m) => m.toEntity()).toList();
   }
 
+  // Get schedule by server ID
+  Future<ScheduleEntity?> getScheduleByServerId(String serverId) async {
+    final model = await _isar.scheduleModels
+        .where()
+        .filter()
+        .serverIdEqualTo(serverId)
+        .findFirst();
+    
+    return model?.toEntity();
+  }
+
   // Mark as synced
   Future<void> markAsSynced(String localId, String serverId) async {
     final model = await _isar.scheduleModels
