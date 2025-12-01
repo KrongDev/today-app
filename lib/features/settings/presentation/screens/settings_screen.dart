@@ -10,7 +10,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final themeMode = ref.watch(themeModeProvider);
+    final themeMode = ref.watch(themeModeControllerProvider);
     final notificationsEnabled = ref.watch(notificationSettingsProvider);
     final preferences = ref.watch(userPreferencesProvider);
 
@@ -177,7 +177,7 @@ class SettingsScreen extends ConsumerWidget {
               groupValue: current,
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(themeModeProvider.notifier).setThemeMode(value);
+                  ref.read(themeModeControllerProvider.notifier).setThemeMode(value);
                   Navigator.pop(context);
                 }
               },

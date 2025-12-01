@@ -1,10 +1,12 @@
 import 'package:isar/isar.dart';
-import '../entities/schedule_entity.dart';
+import '../../domain/entities/schedule_entity.dart';
 
 part 'schedule_model.g.dart';
 
 @collection
 class ScheduleModel {
+  ScheduleModel();
+
   Id id = Isar.autoIncrement;
   
   @Index()

@@ -36,7 +36,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     } on DioException catch (e) {
       return left(ServerFailure(e.message ?? 'Login failed'));
     } catch (e) {
-      return left(const Failure('Unexpected error'));
+      return left(const ServerFailure('Unexpected error'));
     }
   }
 

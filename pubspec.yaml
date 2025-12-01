@@ -48,7 +48,7 @@ dependencies:
   
   # Background Sync
   workmanager: ^0.5.2
-  flutter_background_fetch: ^1.2.0
+  background_fetch: ^1.2.0
   
   # Local Notifications
   flutter_local_notifications: ^16.3.0

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as flutter;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -6,7 +6,7 @@ part 'settings_provider.g.dart';
 
 // Theme Mode Provider
 @riverpod
-class ThemeMode extends _$ThemeMode {
+class ThemeModeController extends _$ThemeModeController {
   @override
   ThemeModeEnum build() {
     _loadThemeMode();
@@ -36,14 +36,14 @@ enum ThemeModeEnum {
 }
 
 extension ThemeModeEnumX on ThemeModeEnum {
-  ThemeMode toMaterialThemeMode() {
+  flutter.ThemeMode toMaterialThemeMode() {
     switch (this) {
       case ThemeModeEnum.light:
-        return ThemeMode.light;
+        return flutter.ThemeMode.light;
       case ThemeModeEnum.dark:
-        return ThemeMode.dark;
+        return flutter.ThemeMode.dark;
       case ThemeModeEnum.system:
-        return ThemeMode.system;
+        return flutter.ThemeMode.system;
     }
   }
 }

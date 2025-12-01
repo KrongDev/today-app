@@ -161,7 +161,7 @@ class ScheduleRepositoryImpl implements IScheduleRepository {
   Future<Either<Failure, void>> syncSchedules() async {
     try {
       if (!_isOnline) {
-        return left(const Failure('Cannot sync while offline'));
+        return left(const NetworkFailure('Cannot sync while offline'));
       }
       
       await _syncService.syncAll();
@@ -169,18 +169,5 @@ class ScheduleRepositoryImpl implements IScheduleRepository {
     } catch (e) {
       return left(ServerFailure(e.toString()));
     }
-  }
-}
-
-// Extension to add helper methods
-extension ScheduleEntityExtensions on ScheduleEntity {
-  Map<String, dynamic> toCreateRequest() {
-    return {
-      'title': title,
-      'details': details,
-      'location': location,
-      'startTime': startTime.toIso8601String(),
-      'endTime': endTime.toIso8601String(),
-    };
   }
 }

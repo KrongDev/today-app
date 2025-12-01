@@ -1,0 +1,18 @@
+println "Applying fix_namespace.gradle..."
+subprojects {
+    afterEvaluate { project ->
+        def android = project.extensions.findByName("android")
+        if (android != null) {
+            if (android.namespace == null) {
+                def ns = project.group?.toString()
+                if (!ns || ns == "null" || ns.isEmpty()) {
+                    ns = "com.example.${project.name.replaceAll('-', '_')}"
+                }
+                println "Setting namespace for ${project.name} to $ns"
+                android.namespace = ns
+            } else {
+                println "Namespace already set for ${project.name}: ${android.namespace}"
+            }
+        }
+    }
+}
